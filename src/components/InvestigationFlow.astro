@@ -7,7 +7,7 @@ const lines = ['--- FAIL:','TestLateRouteRegistrationSkippedNodes','','Observed 
     <svg class="streams" fill="none" aria-hidden="true">{Array.from({length:27},(_,i)=><g><path data-line={i}/><rect x="-4" y="-2" width="8" height="4"><animateMotion data-motion={i} dur={`${4+i%5*.4}s`} begin={`${-i*.63}s`} repeatCount="indefinite" rotate="auto"/></rect></g>)}</svg>
     <article class="input card"><h3><span aria-hidden="true">&gt;_</span> CI run</h3><div class="log" tabindex="0" role="region" aria-label="CI failure log; focus to pause automatic scrolling"><div class="log-scroll">{[0,1].map(copy=><div class="log-copy" aria-hidden={copy===1?'true':undefined}>{lines.map(line=><div class:list={{strong:line.includes('FAIL')||line.startsWith('Test')}}>{line||'\u00a0'}</div>)}</div>)}</div></div><span class="foot">FAILED RUN / LOGS + ARTIFACTS</span></article>
     <div class="junction" aria-hidden="true"></div>
-    <article class="assistant card"><h3><span aria-hidden="true">✳</span> AI debugging / review assistant</h3><p class="context"><b>Context:</b> logs and supplied source</p><ul><li>Read the logs and supplied context</li><li>Explore hypotheses with your tools</li><li>Propose a change to verify</li></ul><span class="foot">CAPABILITIES DEPEND ON YOUR ASSISTANT</span></article>
+    <article class="assistant card"><span class="benchmark-tag">COMPARISON / BENCHMARK</span><h3><span aria-hidden="true">✳</span> AI debugging / review assistant</h3><p class="context"><b>Context:</b> logs and supplied source</p><ul><li>Read the logs and supplied context</li><li>Explore hypotheses with your tools</li><li>Propose a change to verify</li></ul><span class="foot">CAPABILITIES DEPEND ON YOUR ASSISTANT</span></article>
     <article class="analysis card small"><h3>AI analysis</h3></article>
     <article class="debug card small"><h3>Debug &amp; trace</h3></article>
     <article class="sandbox card small"><h3>Sandbox<br/>&amp;<br/>checks</h3><svg class="probe-grid" viewBox="0 0 60 52" fill="none" aria-hidden="true"><path d="M7 13 23 4 54 4 39 13Z" fill="#eeeee9" stroke="#98988e"/><path d="M39 13 54 4 54 39 39 48Z" fill="#e1e1da" stroke="#98988e"/><path d="M7 13H39V48H7Z" fill="#fafaf7" stroke="#98988e"/>{Array.from({length:30},(_,i)=><rect class="probe-cell" x={11+i%5*5} y={18+Math.floor(i/5)*4.8} width="2" height="2" style={`--delay:${(i%7)*-.4}s`}/>)}</svg></article>
@@ -28,7 +28,9 @@ const lines = ['--- FAIL:','TestLateRouteRegistrationSkippedNodes','','Observed 
 .sandbox{background:transparent;border:0;box-shadow:none;padding:0;overflow:visible}.sandbox h3{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:130px;font-size:13px;line-height:1.4}.sandbox h3 br{display:none}.sandbox h3 br::after{content:' '}.sandbox .probe-grid{width:100%;max-width:none;height:100%;margin:0;filter:drop-shadow(0 8px 9px #20202018)}
 .assistant{left:51%;width:43%;padding:28px 30px}.assistant ul{font-size:15px;line-height:1.9}.assistant h3{font-size:19px}.context{font-size:12px}.analysis,.debug{left:46%;width:14%}.sandbox{left:64%;width:8%}.report{left:78%;width:21%;padding:23px;min-height:285px}.report-preview{font-size:12px}.report-preview strong{font-size:13px}.report a{font-size:12px}.preview-label{font-size:11px}
 @media(max-width:760px){.sandbox{min-height:150px;padding-top:25px}.sandbox h3{top:0;bottom:auto;width:100%}.sandbox .probe-grid{width:110px;height:110px}}
-@media(max-width:760px){.assistant,.analysis,.debug,.sandbox,.report{left:auto;width:auto}.assistant{padding:25px}.assistant h3{font-size:17px}.sandbox{grid-column:1 / -1;min-height:0;padding:24px;background:#fbfbf9;border:1px solid #8f8f88;border-radius:11px;box-shadow:0 8px 25px -24px #222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}.sandbox h3{position:static;transform:none;width:auto;font-size:17px}.sandbox .probe-grid{width:120px;height:120px}.report{grid-column:1 / -1;min-height:260px}.report-preview{font-size:13px}.report-preview strong{font-size:14px}}
+@media(max-width:760px){.assistant,.analysis,.debug,.sandbox,.report{left:auto;width:auto}.assistant{padding:25px;order:9}.assistant h3{font-size:17px}.sandbox{grid-column:1 / -1;min-height:0;padding:24px;background:#fbfbf9;border:1px solid #8f8f88;border-radius:11px;box-shadow:0 8px 25px -24px #222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}.sandbox h3{position:static;transform:none;width:auto;font-size:17px}.sandbox .probe-grid{width:120px;height:120px}.report{grid-column:1 / -1;min-height:260px}.report-preview{font-size:13px}.report-preview strong{font-size:14px}}
+.assistant{border-style:dashed;border-color:#c3bfb0;background:#f7f5ee}
+.benchmark-tag{display:inline-block;margin:0 0 14px;font:650 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:#837c66;background:#efece0;border:1px solid #dcd7c6;border-radius:999px;padding:5px 10px}
 
 .investigation footer{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;will-change:opacity,transform}
 .investigation footer[data-revealed]{opacity:1;transform:none}
@@ -51,9 +53,8 @@ if(section){
   if(matchMedia('(max-width:760px)').matches){
    type B=typeof input;const cx=(b:B,side:number)=>b.x+b.w*side,bottom=(b:B)=>b.y+b.h;
    const link=(ax:number,ay:number,bx:number,by:number)=>`M${ax} ${ay} C${ax} ${ay+(by-ay)*.5},${bx} ${ay+(by-ay)*.5},${bx} ${by}`;
-   paths.push(link(cx(input,.5),bottom(input),cx(assistant,.5),assistant.y));
-   paths.push(link(cx(assistant,.34),bottom(assistant),cx(analysis,.5),analysis.y));
-   paths.push(link(cx(assistant,.66),bottom(assistant),cx(debug,.5),debug.y));
+   paths.push(link(cx(input,.5),bottom(input),cx(analysis,.5),analysis.y));
+   paths.push(link(cx(input,.5),bottom(input),cx(debug,.5),debug.y));
    paths.push(link(cx(analysis,.5),bottom(analysis),cx(sandbox,.34),sandbox.y));
    paths.push(link(cx(debug,.5),bottom(debug),cx(sandbox,.66),sandbox.y));
    paths.push(link(cx(sandbox,.5),bottom(sandbox),cx(report,.5),report.y));
@@ -61,7 +62,6 @@ if(section){
    const hub=box('.junction');
    for(let i=0;i<12;i++)paths.push(curve(-bounds.left-20,(i/11)*bounds.height,input.x,input.y+input.h*(.28+i*.04)));
    for(let i=0;i<4;i++)paths.push(curve(input.x+input.w,input.y+input.h*(.4+i*.07),hub.x,hub.y+hub.h*(.2+i*.2)));
-   for(let i=0;i<3;i++)paths.push(curve(hub.x+hub.w,hub.y+hub.h*(.15+i*.18),assistant.x,assistant.y+assistant.h*(.45+i*.08)));
    for(const target of [analysis,debug])for(let i=0;i<2;i++)paths.push(curve(hub.x+hub.w,hub.y+hub.h*(.65+i*.18),target.x,target.y+target.h*(.45+i*.15)));
    for(const source of [analysis,debug])paths.push(curve(source.x+source.w,source.y+source.h*.5,sandbox.x,sandbox.y+sandbox.h*(source===analysis?.3:.7)));
    for(let i=0;i<2;i++)paths.push(curve(sandbox.x+sandbox.w,sandbox.y+sandbox.h*(.4+i*.15),report.x,report.y+report.h*(.4+i*.15)));
