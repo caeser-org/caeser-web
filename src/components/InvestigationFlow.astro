@@ -11,7 +11,7 @@ const lines = ['--- FAIL:','TestLateRouteRegistrationSkippedNodes','','Observed 
     <article class="analysis card small"><h3>AI analysis</h3></article>
     <article class="debug card small"><h3>Debug &amp; trace</h3></article>
     <article class="sandbox card small"><h3>Sandbox<br/>&amp;<br/>checks</h3><svg class="probe-grid" viewBox="0 0 60 52" fill="none" aria-hidden="true"><path d="M7 13 23 4 54 4 39 13Z" fill="#eeeee9" stroke="#98988e"/><path d="M39 13 54 4 54 39 39 48Z" fill="#e1e1da" stroke="#98988e"/><path d="M7 13H39V48H7Z" fill="#fafaf7" stroke="#98988e"/>{Array.from({length:30},(_,i)=><rect class="probe-cell" x={11+i%5*5} y={18+Math.floor(i/5)*4.8} width="2" height="2" style={`--delay:${(i%7)*-.4}s`}/>)}</svg></article>
-    <article class="report card small caeser-report"><h3>Final report</h3><span class="preview-label">EVIDENCE-BACKED</span><div class="report-preview"><strong>Failed Go test</strong><p>Observed <span>Test failure + stack</span></p><p>Source lead <span>node.getValue · tree.go:418</span></p><p>Assessment <span>Inferred · needs verification</span></p></div><a href="/docs/reports/">Report formats <span aria-hidden="true">↗</span></a></article>
+    <article class="report card small caeser-report"><span class="caeser-tag">CAESER</span><h3>Final report</h3><span class="preview-label">EVIDENCE-BACKED</span><div class="report-preview"><strong>Failed Go test</strong><p>Observed <span>Test failure + stack</span></p><p>Source lead <span>node.getValue · tree.go:418</span></p><p>Assessment <span>Inferred · needs verification</span></p></div><a href="/docs/reports/">Report formats <span aria-hidden="true">↗</span></a></article>
   </div>
   <footer><p>Continue in your assistant with the exported investigation brief.</p><a href="/docs/reports/">Read about reports <span aria-hidden="true">↗</span></a></footer>
 </section>
@@ -31,6 +31,7 @@ const lines = ['--- FAIL:','TestLateRouteRegistrationSkippedNodes','','Observed 
 @media(max-width:760px){.assistant,.analysis,.debug,.sandbox,.report{left:auto;width:auto}.assistant{padding:25px;order:9}.assistant h3{font-size:17px}.sandbox{grid-column:1 / -1;min-height:0;padding:24px;background:#fbfbf9;border:1px solid #8f8f88;border-radius:11px;box-shadow:0 8px 25px -24px #222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}.sandbox h3{position:static;transform:none;width:auto;font-size:17px}.sandbox .probe-grid{width:120px;height:120px}.report{grid-column:1 / -1;min-height:260px}.report-preview{font-size:13px}.report-preview strong{font-size:14px}}
 .assistant{background:#f7f5ee;border-style:dashed;border-color:#c3bfb0}
 .assistant-tag{display:inline-block;margin:0 0 14px;font:650 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:#837c66;background:#efece0;border:1px solid #dcd7c6;border-radius:999px;padding:5px 10px}
+.caeser-tag{display:inline-block;margin:0 0 12px;font:650 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:#f8f8f6;background:#171717;border-radius:999px;padding:5px 10px}
 @media(max-width:760px){.assistant,.analysis,.debug,.sandbox{display:none}.report{min-height:0}}
 
 .investigation footer{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;will-change:opacity,transform}
