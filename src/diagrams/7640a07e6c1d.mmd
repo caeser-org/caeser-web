@@ -1,0 +1,11 @@
+flowchart LR
+    E[Failed CI run + artifacts] --> N[Normalize failures]
+    N --> L[Source leads + likely function]
+    L --> R[Deterministic report]
+    X[Optional execution and probes] --> R
+    R --> B[JSON + Markdown brief]
+    R -. optional .-> M[Model analysis]
+    M --> F[Final artifact]
+    B --> F
+    F --> P[Separate publication job]
+    P --> C[One updated PR comment]

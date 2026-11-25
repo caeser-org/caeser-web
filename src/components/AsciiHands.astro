@@ -1,0 +1,243 @@
+---
+import sharp from 'sharp';
+import { readFile } from 'node:fs/promises';
+// Convert the commissioned hand artwork into real text at build time.
+// The source bitmap is not downloaded by the browser.
+const source = await readFile(`${process.cwd()}/public/reaching-hands-source.png`);
+const columns = 400, rows = 90;
+const { data } = await sharp(source)
+  .extract({ left: 0, top: 260, width: 1536, height: 550 })
+  .resize(columns, rows, { fit: 'fill' }).flatten({ background: '#ffffff' })
+  .greyscale().raw().toBuffer({ resolveWithObject: true });
+const characters = ' .,:;i1tfLCG08@';
+// Two digits per cell: ink depth, then directional relief under light from the upper left.
+// The relief term turns the grayscale source into a readable surface instead of flat text.
+const at = (x: number, y: number) => data[Math.min(rows - 1, Math.max(0, y)) * columns + Math.min(columns - 1, Math.max(0, x))];
+const tones = Array.from(data, (value, i) => {
+  const x = i % columns, y = Math.floor(i / columns);
+  const depth = Math.round((255 - value) / 255 * 9);
+  const relief = (at(x - 1, y) - at(x + 1, y) + at(x, y - 1) - at(x, y + 1)) / 4;
+  const light = Math.max(0, Math.min(9, Math.round(4.5 + relief * .42)));
+  return `${depth}${light}`;
+}).join('');
+const lines = Array.from({ length: rows }, (_, y) =>
+  Array.from({ length: columns }, (_, x) => {
+    const value = data[y * columns + x];
+    if (value > 240) return ' ';
+    const shade = Math.min(1, Math.pow((255 - value) / 220, .42));
+    return characters[Math.max(1, Math.round(shade * (characters.length - 1)))];
+  }).join('')
+).join('\n');
+---
+<div class="ascii-hands" data-scroll-hands data-tones={tones} role="img" aria-label="Two sculptural hands reaching toward each other, rendered entirely in ASCII characters">
+  <canvas aria-hidden="true"></canvas>
+  <pre aria-hidden="true">{lines}</pre>
+</div>
+<style>
+.ascii-hands{height:100%;width:100%;display:grid;place-items:center;position:relative;isolation:isolate;overflow:visible;color:#030403}
+pre{position:relative;font-family:'Courier New',monospace;font-size:clamp(1.6px,.392vw,6.4px);font-weight:700;line-height:.95;letter-spacing:0;white-space:pre;color:#171917;margin:0;user-select:none;z-index:1;animation:resolve 1.5s ease both;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);text-shadow:0 2px 3px rgba(0,0,0,.18),0 10px 18px rgba(0,0,0,.24)}
+
+@keyframes resolve{from{opacity:0;filter:blur(2px);transform:translateY(8px)}to{opacity:1;filter:blur(0);transform:translateY(0)}}
+@media(max-width:800px){pre{font-size:.392vw}}
+@media(max-width:500px){pre{font-size:.392vw}}
+@media(prefers-reduced-motion:reduce){pre{animation:none}}
+canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;opacity:0;pointer-events:none}canvas[data-ready]{opacity:1}.ascii-hands[data-ready] pre{visibility:hidden}
+</style>
+<script>
+const host = document.querySelector<HTMLElement>('[data-scroll-hands]');
+if (host) {
+  const ink = getComputedStyle(host).color;
+  const canvas = host.querySelector('canvas')!;
+  const context = canvas.getContext('2d');
+  const track = host.closest('.hero-track') as HTMLElement;
+  const hero = host.closest('.hero') as HTMLElement;
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const source = host.querySelector('pre')!.textContent!.split('\n');
+  const columns = source[0].length, rows = source.length;
+  const tones = host.dataset.tones ?? '';
+  const noise = (a: number, b: number) => { const x = Math.sin(a * 127.1 + b * 311.7) * 43758.5453; return x - Math.floor(x); };
+  const smooth = (value: number) => { const n = Math.max(0, Math.min(1, value)); return n * n * (3 - 2 * n); };
+  const points = source.flatMap((line, row) => Array.from(line, (glyph, column) => {
+    const i = (row * columns + column) * 2;
+    return { glyph, row, column, shade: Number(tones[i] ?? 5) / 9, light: Number(tones[i + 1] ?? 5) / 9 };
+  }).filter(p => p.glyph !== ' ')).map(p => {
+    const u = p.column / columns, v = p.row / rows;
+    const left = u < .5, random = noise(p.column, p.row);
+    return { ...p, random, side: left ? -1 : 1,
+      reach: left ? smooth((u - .29) / .20) : smooth((.72 - u) / .22),
+      indexMask: 1 - smooth((v - .43) / .13), curled: smooth((v - .48) / .22),
+      palmDistance: left ? smooth((u - .15) / .12) : smooth((.88 - u) / .12),
+      anchor: .08 + .92 * Math.min(1, Math.abs(p.column - columns / 2) / 14),
+      forward: .5 - p.shade,
+      inkAlpha: Math.min(1, .85 + Math.pow(p.shade, .34) * (1 - (p.light - .5) * 1.1) * .4),
+      tick: -1, xFrom: 0, xTo: 0, yFrom: 0, yTo: 0,
+    };
+  });
+  let width = 0, height = 0, artWidth = 0, artHeight = 0, originX = 0, originY = 0, scheduled = false;
+  let paused = false, visible = true, frame = 0, lastFrame = 0, driftTime = 0;
+  let trackTop = 0, travel = 1;
+  const atlas = document.createElement('canvas');
+  const atlasContext = atlas.getContext('2d')!;
+  const glyphs = [...new Set(points.map(p => p.glyph))];
+  const glyphIndex = new Map(glyphs.map((glyph, index) => [glyph, index]));
+  let atlasWidth = 0, atlasHeight = 0, glyphWidth = 0, glyphHeight = 0;
+  const flexes = new Float64Array(columns);
+  const toggle = host.querySelector<HTMLButtonElement>('.wave-toggle');
+  const draw = () => {
+    scheduled = false;
+    if (!context || !visible) return;
+    const progress = reduced.matches ? 0 : Math.max(0, Math.min(1, (scrollY - trackTop) / travel));
+    if (progress >= 1) { context.clearRect(0, 0, width, height); return; }
+    // Keep the existing outward movement and trailing dissolve.
+    const separation = smooth(progress / .95);
+    const dissolve = smooth(progress / .9);
+    context.clearRect(0, 0, width, height);
+    const cell = Math.min(artWidth * 1.04 / columns, (artHeight - 12) / (rows * 1.584 + 3));
+    const font = cell / .6;
+    const line = font * .95;
+    const glyphScale = 1 - dissolve * .1;
+    const rotationCos = Math.cos(separation * .035);
+    const rotationSin = Math.sin(separation * .035);
+    for (let column = 0; column < columns; column++) {
+      const finger = Math.floor(column / columns * 24);
+      flexes[column] = Math.sin(driftTime * (.48 + (finger % 3) * .09) + finger * .8);
+    }
+    for (const p of points) {
+      const left = p.column < columns / 2;
+      const random = p.random;
+      const loose = smooth(Math.min(1, dissolve * (1 + random * .18)));
+      const side = p.side;
+      const initial = left ? .9 : -.9;
+      let x = (p.column - columns / 2 + initial) * cell;
+      let y = (p.row - rows / 2) * line;
+      // Localized bends: fingertips flex around their knuckles; wrists stay anchored.
+      if (!reduced.matches) {
+        const t = driftTime;
+        const { reach, indexMask, curled, palmDistance } = p;
+        const bend = Math.sin(t * .82 + (left ? 0 : 1.2) + progress * 1.4) * .028 * indexMask * reach;
+        const pivotX = (left ? -.19 : .19) * columns * cell;
+        const pivotY = -.08 * rows * line;
+        const dx = x - pivotX, dy = y - pivotY;
+        x = pivotX + dx - dy * bend;
+        y = pivotY + dx * bend + dy;
+        const flex = flexes[p.column];
+        y += flex * line * .65 * curled * palmDistance;
+        x += flex * cell * .28 * curled * palmDistance;
+        // A small independent reach gives each hand life without loosening its silhouette.
+        const breath = Math.sin(t * .7 + (left ? 0 : 1.6));
+        x -= side * breath * cell * .7 * reach;
+        y += breath * line * .2 * palmDistance;
+      }
+      // Each wrist pulls naturally outward; loose glyphs trail behind the fingers.
+      const rx = x * rotationCos - y * rotationSin * side;
+      const ry = x * rotationSin * side + y * rotationCos;
+      x = originX + rx + side * separation * width * .48;
+      y = originY + ry;
+      // A short fading wake stays behind the departing silhouette. Its lag
+      // is much smaller than the outward travel, so no glyph reverses direction.
+      const trail = width * (.025 + random * .085);
+      x -= side * loose * trail;
+      // Each glyph drifts between its own random targets, within its original cell.
+      // Independent timing avoids a synchronized wave while keeping the hands intact.
+      if (!reduced.matches) {
+        const anchor = p.anchor;
+        const amplitude = Math.min(cell * .1, .6) * anchor * (1 - loose);
+        const clock = driftTime * (.55 + random * 1.1) + random * 29;
+        const tick = Math.floor(clock);
+        const fraction = clock - tick;
+        const blend = fraction * fraction * (3 - 2 * fraction);
+        if (p.tick !== tick) {
+          p.tick = tick;
+          p.xFrom = noise(p.column + 13, p.row + tick * 17) - .5;
+          p.xTo = noise(p.column + 13, p.row + (tick + 1) * 17) - .5;
+          p.yFrom = noise(p.column + 71, p.row + tick * 17) - .5;
+          p.yTo = noise(p.column + 71, p.row + (tick + 1) * 17) - .5;
+        }
+        x += (p.xFrom + (p.xTo - p.xFrom) * blend) * amplitude * 2;
+        y += (p.yFrom + (p.yTo - p.yFrom) * blend) * amplitude * 2;
+      }
+      // Lit ridges sit in front of recessed creases; parallax opens that gap as the hands part.
+      const forward = p.forward;
+      x += side * forward * cell * (.7 + separation * 2.2);
+      y += forward * line * (.25 + separation * .7);
+      // Directional light from the upper left: faces toward it lose ink, lee faces gain it.
+      const fadeStart = .2 + random * .22;
+      const fade = 1 - smooth((progress - fadeStart) / (1 - fadeStart));
+      context.globalAlpha = Math.pow(fade, .75) * p.inkAlpha;
+      context.drawImage(atlas, glyphIndex.get(p.glyph)! * atlasWidth, 0, atlasWidth, atlasHeight,
+        x, y, glyphWidth * glyphScale, glyphHeight * glyphScale);
+    }
+    context.globalAlpha = 1;
+  };
+  const requestDraw = () => { if (!scheduled) { scheduled = true; requestAnimationFrame(draw); } };
+  const resize = () => {
+    const rect = hero.getBoundingClientRect();
+    const art = host.getBoundingClientRect();
+    width = rect.width; height = rect.height;
+    artWidth = art.width; artHeight = art.height;
+    originX = art.left - rect.left + art.width / 2;
+    originY = art.top - rect.top + art.height / 2;
+    const dpr = Math.min(devicePixelRatio || 1, 1.5);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    context?.setTransform(dpr, 0, 0, dpr, 0, 0);
+    trackTop = track.getBoundingClientRect().top + scrollY;
+    travel = Math.max(1, track.offsetHeight - innerHeight);
+    const cell = Math.min(artWidth * 1.04 / columns, (artHeight - 12) / (rows * 1.584 + 3));
+    const font = cell / .6 * 1.06;
+    atlasWidth = Math.ceil(font * 1.4 * dpr);
+    atlasHeight = Math.ceil(font * 1.5 * dpr);
+    glyphWidth = atlasWidth / dpr;
+    glyphHeight = atlasHeight / dpr;
+    atlas.width = atlasWidth * glyphs.length;
+    atlas.height = atlasHeight;
+    atlasContext.setTransform(dpr, 0, 0, dpr, 0, 0);
+    atlasContext.font = `700 ${font}px "Courier New", monospace`;
+    atlasContext.textBaseline = 'top';
+    atlasContext.fillStyle = ink;
+    glyphs.forEach((glyph, index) => atlasContext.fillText(glyph, index * glyphWidth, 0));
+    requestDraw();
+  };
+  if (context) {
+    hero.append(canvas);
+    host.dataset.ready = '';
+    canvas.dataset.ready = '';
+    const observer = new ResizeObserver(resize); observer.observe(hero); observer.observe(host);
+    addEventListener('scroll', requestDraw, { passive: true });
+    const animated = () => !paused && visible && !document.hidden && !reduced.matches;
+    const animate = (time: number) => {
+      if (!animated()) { frame = 0; return; }
+      frame = requestAnimationFrame(animate);
+      if (time - lastFrame < 30) return;
+      driftTime += Math.min((time - lastFrame) / 1000, .06);
+      lastFrame = time;
+      requestDraw();
+    };
+    const sync = () => {
+      if (animated()) {
+        if (!frame) { lastFrame = performance.now(); frame = requestAnimationFrame(animate); }
+      } else if (frame) { cancelAnimationFrame(frame); frame = 0; }
+      if (visible) requestDraw();
+    };
+    const visibility = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; sync(); });
+    visibility.observe(hero);
+    const press = () => {
+      paused = !paused;
+      document.dispatchEvent(new CustomEvent('hero-motion-toggle', { detail: { paused } }));
+      toggle?.setAttribute('aria-pressed', String(paused));
+      if (toggle) toggle.innerHTML = paused ? 'Resume motion <span aria-hidden="true">▷</span>' : 'Pause motion <span aria-hidden="true">Ⅱ</span>';
+      sync();
+    };
+    toggle?.addEventListener('click', press);
+    reduced.addEventListener('change', sync);
+    document.addEventListener('visibilitychange', sync);
+    sync();
+    document.addEventListener('astro:before-swap', () => {
+      cancelAnimationFrame(frame); visibility.disconnect(); toggle?.removeEventListener('click', press);
+      observer.disconnect(); removeEventListener('scroll', requestDraw);
+      reduced.removeEventListener('change', sync); document.removeEventListener('visibilitychange', sync);
+    }, { once: true });
+    resize();
+  }
+}
+</script>

@@ -1,0 +1,61 @@
+---
+const facts = [
+  ['</>', 'Free & open source'],
+  ['[ A ]', 'Apache 2.0'],
+  ['GO', 'Go only'],
+  ['↗', 'Runs in your CI'],
+  ['{ }', 'Model optional'],
+  ['[ + ]', 'Evidence first'],
+  ['>_', 'Local CLI'],
+  ['#', 'Ranked source leads'],
+  ['{ : }', 'JSON reports'],
+  ['MD', 'Markdown briefs'],
+  ['→', 'GitHub Actions'],
+  ['[ ? ]', 'Uncertainty recorded'],
+];
+---
+<div class="ribbon" aria-label="Project capabilities">
+  <div class="ribbon-track">
+    {[0, 1].map(copy => <div class="ribbon-group" aria-hidden={copy === 1 ? 'true' : undefined}>
+      {facts.map(([symbol, label]) => <div class="ribbon-item"><span class="symbol" aria-hidden="true">{symbol}</span><span>{label}</span></div>)}
+    </div>)}
+  </div>
+</div>
+<style>
+.ribbon{width:100%;overflow:hidden;padding:40px 0 13px;color:inherit;mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+.ribbon-track{display:flex;width:max-content;animation:travel 48s linear infinite;will-change:transform}
+.ribbon-group{display:flex;align-items:center;gap:65px;padding-right:65px;flex:none}
+.ribbon-item{display:flex;align-items:center;gap:12px;white-space:nowrap;font-size:14px;opacity:.65}
+.symbol{font:600 17px 'Inter Variable',Arial,sans-serif;opacity:.9}.ribbon-track[data-paused]{animation-play-state:paused}
+@keyframes travel{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media(max-width:500px){.ribbon{padding:23px 0}.ribbon-group{gap:35px;padding-right:35px}.ribbon-item{font-size:14px;gap:9px}.symbol{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.ribbon-track{animation:none;width:100%}.ribbon-group{width:100%;flex-wrap:wrap;justify-content:center;gap:18px;padding:0}.ribbon-group[aria-hidden]{display:none}.ribbon{mask-image:none}}
+.ribbon-item{font-weight:500;opacity:.85}
+.ribbon-item{font-size:14px;font-weight:550;opacity:1;color:#454c40}.ribbon-group{gap:48px;padding-right:48px}
+/* Wordmark-like typography inspired by the reference ribbon. */
+.ribbon-item{font-family:'Inter Variable',Arial,sans-serif;font-size:20px;font-weight:650;line-height:1.2;letter-spacing:-.045em;color:#6b6e6a;gap:12px}
+.symbol{font-family:inherit;font-size:21px;font-weight:700;letter-spacing:-.055em;opacity:1}
+.ribbon-group{gap:72px;padding-right:72px}
+@media(max-width:500px){.ribbon-item{font-size:16px;gap:9px}.symbol{font-size:18px}.ribbon-group{gap:42px;padding-right:42px}}
+</style>
+<script>
+const track = document.querySelector<HTMLElement>('.ribbon-track');
+if (track) {
+  const reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  let visible = false, paused = false;
+  const update = () => track.toggleAttribute('data-paused', paused || !visible || reduced.matches || document.hidden);
+  const toggleMotion = (event: Event) => { paused = (event as CustomEvent).detail.paused; update(); };
+  const observer = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; update(); });
+  observer.observe(track.parentElement!);
+  reduced.addEventListener('change', update);
+  document.addEventListener('visibilitychange', update);
+  document.addEventListener('hero-motion-toggle', toggleMotion);
+  update();
+  document.addEventListener('astro:before-swap', () => {
+    observer.disconnect();
+    reduced.removeEventListener('change', update);
+    document.removeEventListener('visibilitychange', update);
+    document.removeEventListener('hero-motion-toggle', toggleMotion);
+  }, { once: true });
+}
+</script>

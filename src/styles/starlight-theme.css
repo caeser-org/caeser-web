@@ -1,0 +1,311 @@
+@import "@fontsource-variable/inter/index.css";
+
+/*
+ * Caeser docs theme.
+ * Maps Starlight's design tokens onto the marketing site's palette:
+ * warm off-white page, near-black type, hairline borders, Inter typography,
+ * monospace labels and pill buttons. The site is light-only, so the same
+ * values are applied regardless of the theme toggle (which is hidden below).
+ */
+:root,
+:root[data-theme="dark"],
+:root[data-theme="light"] {
+  color-scheme: light;
+  --sl-color-white: #171717;
+  --sl-color-gray-1: #171717;
+  --sl-color-gray-2: #333330;
+  --sl-color-gray-3: #595959;
+  --sl-color-gray-4: #8a8a85;
+  --sl-color-gray-5: #c9c9c5;
+  --sl-color-gray-6: #efefec;
+  --sl-color-gray-7: #f4f4f1;
+  --sl-color-black: #f8f8f6;
+
+  --sl-color-accent-low: #efefec;
+  --sl-color-accent: #171717;
+  --sl-color-accent-high: #171717;
+
+  --sl-color-text: #171717;
+  --sl-color-text-accent: #171717;
+  --sl-color-text-invert: #f8f8f6;
+  --sl-color-bg: #f8f8f6;
+  --sl-color-bg-nav: #f8f8f6;
+  --sl-color-bg-sidebar: #f8f8f6;
+  --sl-color-bg-inline-code: #efefec;
+  --sl-color-bg-accent: #171717;
+  --sl-color-hairline-light: #e7e7e3;
+  --sl-color-hairline: #dededb;
+  --sl-color-hairline-shade: #d9d9d4;
+  --sl-color-backdrop-overlay: hsla(0, 0%, 9%, 0.55);
+
+  --sl-font: "Inter Variable", Arial, sans-serif;
+  --sl-font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --sl-line-height: 1.75;
+}
+
+/* The site is light-only: hide the theme picker. */
+starlight-theme-select {
+  display: none;
+}
+
+/* Headlines echo the marketing site's serif display type. */
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.content-panel h1,
+.hero h1 {
+  font-family: var(--sl-font);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+}
+.sl-markdown-content h1,
+.content-panel h1 {
+  letter-spacing: -0.05em;
+}
+
+/* Small labels & navigation chrome read as monospace, like the site. */
+.right-sidebar h2,
+starlight-toc h2 {
+  font-family: var(--sl-font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+}
+
+/* Links: underline on hover, matching the site's link treatment. */
+.sl-markdown-content a:not(.sl-link-button):hover {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Pill buttons, echoing the site's black pill CTAs. */
+.sl-link-button {
+  border-radius: 999px;
+  font: 600 0.75rem var(--sl-font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.6rem 1.1rem;
+}
+.sl-link-button.primary {
+  background: #171717;
+  color: #f8f8f6;
+  border-color: #171717;
+}
+.sl-link-button.primary:hover {
+  background: #333;
+  border-color: #333;
+  color: #fff;
+}
+.sl-link-button.secondary {
+  border-color: #c5c5c0;
+  color: #171717;
+}
+.pagination-links a {
+  border-radius: 4px;
+}
+
+/* Sidebar active item: subtle, like the site rather than Starlight's blue. */
+.sidebar-content a[aria-current="page"] {
+  background: #efefec;
+  color: #171717;
+  font-weight: 600;
+}
+
+/* A quiet reading layout shared by every documentation page. */
+:root {
+  --sl-content-width: 47rem;
+  --sl-sidebar-width: 17rem;
+  --sl-nav-height: 4.5rem;
+  --sl-text-h1: clamp(2.25rem, 3.5vw, 3rem);
+  --sl-text-h2: 1.875rem;
+  --sl-text-h3: 1.375rem;
+}
+body { -webkit-font-smoothing: antialiased; }
+.docs-brand, .docs-home { display: flex; align-items: center; }
+.docs-brand { gap: 1rem; white-space: nowrap; }
+.docs-home { gap: .6rem; color: #171717; text-decoration: none; }
+.docs-home img { object-fit: contain; filter: invert(1); }
+.docs-home span { font-size: 1.35rem; font-weight: 550; letter-spacing: -.06em; }
+.docs-brand-divider { color: #c9c9c5; font-weight: 300; }
+.docs-label { font: .75rem var(--sl-font-mono); color: #595959; text-decoration: none; }
+.docs-label:hover, .docs-home:hover { opacity: .7; }
+.header .social-icons::after { display: none; }
+.sidebar-content { padding-top: 1.75rem; }
+.sidebar-content .top-level > li { margin-bottom: 1.25rem; }
+.sidebar-content summary {
+  min-height: 40px;
+  padding: .5rem .75rem;
+  border-radius: 4px;
+}
+.sidebar-content summary:hover { background: #efefec; }
+.sidebar-content .group-label > span {
+  font-family: var(--sl-font);
+  font-size: .8125rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: #171717;
+}
+.sidebar-content a {
+  font-size: .8125rem;
+  line-height: 1.5;
+  padding: .55rem .75rem;
+  border-radius: 4px;
+  transition: background-color .15s, color .15s;
+}
+.sidebar-content a:hover { background: #efefec; color: #171717; }
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:is(:hover, :focus) {
+  background: #171717;
+  color: #f8f8f6;
+  box-shadow: none;
+}
+.sidebar-content a[aria-current="page"] > span { color: inherit; }
+/* Code and clipboard feedback stay inside their own framed block. */
+.expressive-code { min-width: 0; margin-block: 1.5rem; }
+.expressive-code .frame { position: relative; }
+.expressive-code pre { overflow-x: auto; }
+.expressive-code .copy { position: absolute; top: .5rem; right: .5rem; }
+.expressive-code .copy .feedback { font: .75rem var(--sl-font); }
+.expressive-code .copy [aria-live] { pointer-events: none; }
+
+.content-panel { padding-block: 2rem; }
+.content-panel + .content-panel { border-top: 0; padding-top: 0; }
+.content-panel h1 { line-height: 1.12; max-width: 24ch; text-wrap: balance; }
+.sl-markdown-content { color: #333330; font-size: .9375rem; }
+.sl-markdown-content :is(h2,h3,h4) { color: #171717; }
+.sl-markdown-content h2 { margin-top: 2.75rem; padding-top: .75rem; }
+.sl-markdown-content h3 { margin-top: 2rem; }
+.sl-markdown-content :is(p,ul,ol,blockquote,table,.expressive-code) + :is(p,ul,ol,blockquote,table,.expressive-code) { margin-top: 1.25rem; }
+.sl-markdown-content a:not(.sl-link-button) { text-decoration: underline; text-decoration-color: #b1b1aa; text-underline-offset: 3px; }
+.sl-markdown-content a:not(.sl-link-button):hover { text-decoration-color: #171717; }
+.sl-markdown-content blockquote { border-inline-start: 2px solid #b8b8af; padding: .25rem 1.25rem; color: #595959; }
+.sl-markdown-content table { width: 100%; font-size: .8125rem; line-height: 1.65; }
+.sl-markdown-content :is(th,td) { padding: .85rem 1rem; min-width: 8rem; border-bottom: 1px solid #dededb; vertical-align: top; }
+.sl-markdown-content th { background: #efefec; color: #171717; font-weight: 600; }
+.sl-markdown-content td:first-child { color: #171717; }
+.sl-markdown-content :not(pre) > code { border: 1px solid #e3e3de; border-radius: 3px; padding: .12em .3em; font-size: .85em; overflow-wrap: anywhere; }
+.sl-markdown-content hr { margin-block: 2.5rem; border-color: #e3e3de; }
+.pagination-links { gap: 1rem; }
+.pagination-links a { padding: 1.1rem 1.25rem; box-shadow: none; transition: background-color .15s, border-color .15s; }
+.pagination-links a:hover { background: #efefec; border-color: #a5a59c; }
+.pagination-links .link-title { font-family: var(--sl-font); font-size: .9375rem; font-weight: 500; }
+starlight-toc a { font-size: .75rem; line-height: 1.6; }
+starlight-toc a[aria-current="true"] { color: #171717; font-weight: 600; }
+:is(a,button,summary):focus-visible { outline: 2px solid #171717; outline-offset: 4px; }
+@media (max-width: 49.99rem) {
+  :root { --sl-nav-height: 4rem; }
+  .docs-brand { gap: .65rem; }
+  .content-panel { padding-block: 1.75rem; }
+  .content-panel h1 { font-size: 2.25rem; }
+  .sl-markdown-content h2 { font-size: 1.65rem; }
+  .sidebar-content a { min-height: 44px; display: flex; align-items: center; }
+  .sl-markdown-content :is(th,td) { padding: .75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-content a, .pagination-links a { transition: none; }
+}
+
+/* Copy silently without a floating confirmation; retain the live announcement. */
+.expressive-code .copy .feedback,
+.expressive-code .copy .feedback.show {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+.expressive-code .copy .feedback::after { display: none; }
+
+/* One code surface and copy control for shell, YAML, JSON and source examples. */
+.expressive-code .frame {
+  border: 1px solid #deded8;
+  border-radius: 8px;
+  background: #f1f1ed;
+  overflow: hidden;
+}
+.expressive-code .frame > .header { display: none; }
+.expressive-code .frame pre {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: #f1f1ed;
+  padding-block: 1.25rem;
+}
+.expressive-code .frame .copy {
+  top: .65rem;
+  right: .65rem;
+  margin: 0;
+}
+.expressive-code .frame .copy button {
+  width: 2rem;
+  height: 2rem;
+  opacity: 1;
+  background: #f1f1ed;
+  border-radius: 5px;
+  color: #595959;
+}
+.expressive-code .frame .copy button div { background: transparent; opacity: 0; }
+.expressive-code .frame .copy button::before { border: 1px solid #d6d6cf; opacity: 1; }
+.expressive-code .frame .copy button::after {
+  margin: .45rem;
+  background-color: #595959;
+}
+.expressive-code .frame .copy button:hover { background: #e5e5df; }
+.expressive-code .frame .copy button:focus-visible { outline: 2px solid #171717; outline-offset: 2px; }
+/* Reserve a control row so copying never covers the first line of code. */
+.expressive-code .frame pre { padding-block-start: 3rem; }
+
+/* Compact copy control and code spacing. */
+.expressive-code .frame pre { padding-block: 1rem; }
+.expressive-code .frame .copy { top: .4rem; right: .4rem; }
+.expressive-code .frame .copy button { width: 1.5rem; height: 1.5rem; background: #f1f1ed; }
+.expressive-code .frame .copy button::before { border-color: transparent; }
+.expressive-code .frame .copy button::after { margin: .3rem; }
+.expressive-code .frame .copy button:hover::before { border-color: #d6d6cf; }
+.expressive-code .frame .ec-line:first-child .code { padding-inline-end: 2.5rem; }
+
+/* The renderer gives code a 100% flex basis. Extra outer padding would
+   make even a one-word example wider than its scroll container. */
+.expressive-code .frame pre > code {
+  box-sizing: border-box;
+  min-width: 0;
+  padding-inline: 0;
+}
+
+/* Pre-rendered architecture diagrams remain available with JavaScript disabled. */
+.sl-markdown-content img[src^="/diagrams/"] {
+  display: block;
+  width: 100%;
+  height: auto;
+  padding: 1.25rem;
+  border: 1px solid #deded8;
+  border-radius: 8px;
+  background: #f8f8f6;
+}
+
+/* Slightly stronger reading text without flattening heading hierarchy. */
+.sl-markdown-content { font-weight: 500; color: #292d27; }
+.sl-markdown-content :is(strong,th) { font-weight: 650; }
+.sl-markdown-content blockquote { color: #4b5147; }
+.sidebar-content a, starlight-toc a, .pagination-links a { font-weight: 500; }
+.sidebar-content a[aria-current="page"], starlight-toc a[aria-current="true"] { font-weight: 650; }
+.expressive-code pre > code { font-weight: 500; }
+
+/* Shared readable scale and wider documentation columns. */
+:root{--sl-content-width:56rem;--sl-sidebar-width:17rem;--sl-font:"Inter Variable",Arial,sans-serif;--sl-text-body:1rem;--sl-text-code:.875rem;--sl-color-gray-3:#50564c;--sl-color-text:#242822}
+.sl-markdown-content{font-size:1rem;line-height:1.8;color:#242822}
+.sl-markdown-content :is(h1,h2,h3,h4){font-family:var(--sl-font);font-weight:600;letter-spacing:-.025em;line-height:1.25}
+.content-panel h1{font-family:var(--sl-font);font-weight:600;letter-spacing:-.035em}
+.sidebar-content a{font-size:.9375rem;line-height:1.6}
+.sidebar-content .group-label>span{font-size:.875rem;font-family:var(--sl-font)}
+starlight-toc a{font-size:.875rem;line-height:1.65}
+.sl-markdown-content table{font-size:.9375rem}
+.sl-markdown-content :not(pre)>code{font-size:.9em}
+.sidebar-content summary{min-height:44px}
+.right-sidebar h2,starlight-toc h2{font-family:var(--sl-font);font-size:.75rem;letter-spacing:.06em}
+.docs-label{font-family:var(--sl-font);font-size:.875rem}

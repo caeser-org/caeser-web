@@ -1,0 +1,68 @@
+---
+const setupPrompt = `Set up Caeser for this Go repository.
+
+1. Read the repository README and identify its CI workflow and Go test command.
+2. Follow https://github.com/caeser-org/ceaser/blob/main/docs/installation.md to install the CLI.
+3. Run caeser init and review the proposed .caeser.yml and GitHub Actions workflow before committing them.
+4. Start with evidence from an existing failed CI run and its matching source revision. Keep model analysis and deeper execution optional.
+5. If I enable model analysis, help me configure my own model gateway and provider credentials. Never put secrets in source control.
+6. Explain where to find the JSON report, Markdown brief, ranked source leads, and unresolved questions. Treat leads as investigation starting points requiring verification.`;
+const groups = [
+ {title:'EXPLORE',links:[['Overview','/#main'],['Architecture','/docs/runtime-architecture/'],['Capabilities','/docs/capabilities/'],['GitHub Actions','/docs/github-action/']]},
+ {title:'DOCUMENTATION',links:[['Get started','/docs/installation/'],['Documentation map','/docs/'],['Reports & briefs','/docs/reports/'],['CI integration','/docs/ci-integration/']]},
+ {title:'ENGINE',links:[['Model harness','/docs/runtime-architecture/#6-optional-model-investigation'],['Sandbox execution','/docs/sandbox-execution/'],['Evaluation','/docs/diagnosis-evaluation/'],['Supported environments','/docs/supported-environments/']]},
+ {title:'PROJECT',links:[['GitHub ↗','https://github.com/caeser-org/ceaser'],['Open an issue ↗','https://github.com/caeser-org/ceaser/issues'],['Contribute ↗','https://github.com/caeser-org/ceaser/blob/main/CONTRIBUTING.md'],['Changelog ↗','https://github.com/caeser-org/ceaser/blob/main/CHANGELOG.md']]},
+];
+---
+<footer class="site-footer" data-closing-footer>
+ <section class="closing" aria-labelledby="closing-title">
+  <h2 id="closing-title">Start with your next<br/><span>failed Go CI run.</span></h2>
+  <p class="closing-description">Connect the failure to its source. Inspect the evidence,<br class="wide-break"/> ranked function leads, and the questions still open.</p>
+  <div class="closing-controls">
+   <div class="closing-actions"><a class="build-button" href="/docs/installation/"><span class="button-mark"><img src="/logo-mark.webp" loading="lazy" decoding="async" alt="" width="28" height="20"/></span><span>Start building</span><span aria-hidden="true">↗</span></a><a class="docs-button" href="/docs/">Read the docs <span aria-hidden="true">↗</span></a></div>
+   <div class="setup-prompt"><button class="copy-prompt" type="button"><span class="copy-label">Copy setup prompt</span><svg viewBox="0 0 18 18" width="15" height="15" fill="none" aria-hidden="true"><rect x="6" y="6" width="9" height="10" rx="2" stroke="currentColor"/><path d="M12 6V4a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h1" stroke="currentColor"/></svg></button><button class="prompt-toggle" type="button" aria-expanded="false" aria-controls="setup-prompt-text" aria-label="Show setup prompt"><span aria-hidden="true">⌄</span></button><pre id="setup-prompt-text" hidden>{setupPrompt}</pre><span class="copy-status" role="status" aria-live="polite"></span></div>
+  </div>
+  <p class="byok"><strong>BYOK for model analysis.</strong> Bring your own model provider credentials.<br/>The default investigation runs without a model.</p>
+ </section>
+ <div class="footer-columns">
+  <div class="footer-about"><a class="footer-brand" href="/" aria-label="Caeser home"><img src="/logo-mark.webp" loading="lazy" decoding="async" alt="" width="30" height="22"/><span>caeser.</span></a><p>A Go CI investigation engine. <br/>Evidence, source leads, <br/>and inspectable results.</p><a class="footer-start" href="/docs/installation/">Start building <span aria-hidden="true">↗</span></a></div>
+  {groups.map(group=><nav class="footer-group" aria-label={group.title.toLowerCase()}><h3>{group.title}</h3><ul>{group.links.map(([label,href])=><li><a href={href}>{label}</a></li>)}</ul></nav>)}
+ </div>
+ <div class="footer-bottom"><span>© {new Date().getFullYear()} Caeser</span><a href="https://github.com/caeser-org/ceaser/blob/main/LICENSE">Apache 2.0</a><span class="footer-note">Open source / Go only / Model optional</span></div>
+</footer>
+<style>
+.site-footer{display:block;padding:0 7vw 25px;background:#f8f8f6;color:#222;font-family:'Inter Variable',Arial,sans-serif}.closing{padding:95px 0 115px;text-align:center}.closing h2{font:400 clamp(38px,4.5vw,66px)/1.08 'Inter Variable',Arial,sans-serif;letter-spacing:-.045em;margin:0}.closing h2>span{color:#8d8d89}.closing-description{font-size:14px;line-height:1.9;color:#50564c;margin:30px 0}.closing-controls{width:min(100%,470px);margin:auto}.closing-actions{display:grid;grid-template-columns:1.18fr 1fr;gap:10px}.build-button,.docs-button{min-height:50px;display:flex;align-items:center;justify-content:space-between;font:14px 'Inter Variable',Arial,sans-serif;letter-spacing:.6px;text-transform:uppercase;padding:0 17px;transition:transform .2s,background .2s}.build-button{background:#111;color:#fff;gap:15px;padding-left:0}.button-mark{width:51px;height:50px;display:grid;place-items:center;background:#242424}.button-mark img{object-fit:contain;width:28px;height:22px}.build-button>span:nth-child(2){flex:1;text-align:left}.docs-button{background:#ecece7;color:#333;gap:20px}.build-button:hover{background:#303030;transform:translateY(-2px)}.docs-button:hover{background:#e0e0d9;transform:translateY(-2px)}.build-button:active,.docs-button:active{transform:translateY(1px)}.setup-prompt{margin-top:10px;display:grid;grid-template-columns:1fr 43px;position:relative;background:repeating-linear-gradient(125deg,#efefea,#efefea 1px,#f4f4ef 1px,#f4f4ef 5px);text-align:left}.copy-prompt,.prompt-toggle{background:transparent;border:0;cursor:pointer;color:#444;min-height:41px;font:14px 'Inter Variable',Arial,sans-serif;letter-spacing:.5px;text-transform:uppercase}.copy-prompt{display:flex;align-items:center;justify-content:space-between;padding:0 15px}.prompt-toggle{font-size:17px;transition:background .2s}.copy-prompt:hover,.prompt-toggle:hover{background:#e7e7e0}.prompt-toggle[aria-expanded=true] span{display:inline-block;transform:rotate(180deg)}.setup-prompt pre{grid-column:1 / -1;white-space:pre-wrap;font:14px/1.8 'Inter Variable',Arial,sans-serif;padding:18px;text-transform:none;letter-spacing:0;color:#555;background:#ecece6;margin:0}.copy-status{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}.byok{font-size:14px;line-height:1.9;color:#50564c;margin:23px 0 0}.byok strong{font-weight:500;color:#555}.footer-columns{display:grid;grid-template-columns:1.45fr repeat(4,1fr);gap:35px;padding:0 0 65px}.footer-brand{display:flex;align-items:center;gap:10px;width:max-content}.footer-brand img{filter:invert(1);width:30px;height:22px;object-fit:contain}.footer-brand span{font-size:23px;font-weight:550;letter-spacing:-1px}.footer-about>p{font-size:14px;line-height:1.9;color:#50564c;margin:19px 0}.footer-start{display:flex;justify-content:space-between;align-items:center;gap:25px;font:14px 'Inter Variable',Arial,sans-serif;background:#171717;color:white;padding:0 14px;min-height:39px;width:max-content}.footer-start:hover{background:#353535}.footer-group h3{font:14px 'Inter Variable',Arial,sans-serif;letter-spacing:1px;color:#50564c;margin:6px 0 20px}.footer-group ul{list-style:none;margin:0;padding:0}.footer-group li{margin:0}.footer-group li a{font-size:14px;line-height:1.5;min-height:37px;display:flex;align-items:center;color:#50564c}.footer-group li a:hover{color:#111;text-decoration:underline;text-underline-offset:4px}.footer-bottom{display:flex;align-items:center;gap:24px;color:#50564c;font-size:14px;line-height:1.8}.footer-bottom a:hover{color:#222}.footer-note{margin-left:auto;font:14px 'Inter Variable',Arial,sans-serif;color:#50564c}
+@media(max-width:1000px){.footer-columns{gap:20px;grid-template-columns:1.25fr repeat(4,1fr)}.footer-group li a{font-size:14px}.footer-about>p{font-size:14px}.footer-brand span{font-size:21px}}
+@media(max-width:750px){.site-footer{padding:0 5vw 22px}.closing{padding:75px 0 85px}.footer-columns{grid-template-columns:repeat(2,1fr);gap:35px;padding-bottom:45px}.footer-about{grid-column:1 / -1}.footer-about>p br{display:none}.footer-about>p{max-width:320px;font-size:14px}.footer-group li a{font-size:14px;min-height:40px}.footer-group h3{font-size:14px}.footer-bottom{flex-wrap:wrap;gap:12px 22px}.footer-note{margin-left:0;flex-basis:100%}}
+@media(max-width:450px){.closing h2{font-size:39px}.closing-description{font-size:14px;margin:24px 0}.wide-break{display:none}.closing-actions{grid-template-columns:1.15fr 1fr;gap:8px}.build-button,.docs-button{font-size:14px;letter-spacing:.2px;padding-right:12px}.build-button{gap:10px}.button-mark{width:43px}.button-mark img{width:24px}.docs-button{padding-left:12px;gap:10px}.byok{font-size:14px}.copy-prompt{font-size:14px}}
+@media(prefers-reduced-motion:reduce){.build-button,.docs-button,.prompt-toggle{transition:none}}
+:is(p,a,button,.footer-bottom,.footer-note){font-weight:500}.closing-description,.byok,.footer-about>p,.footer-group li a,.footer-bottom,.footer-note{color:#555950}.footer-group h3{font-weight:600;color:#555950}.closing h2>span{color:#666b62}
+
+/* Use the same readable sans serif for the brand, description and actions. */
+.footer-brand span{font-size:28px;font-weight:600}
+.footer-about>p{font:500 14px/1.8 'Inter Variable',Arial,sans-serif;color:#454a40}
+.footer-start{min-height:48px;padding:0 23px;gap:30px;border-radius:999px;font:550 14px/1.3 'Inter Variable',Arial,sans-serif}
+.build-button,.docs-button{min-height:54px;border-radius:999px;overflow:hidden;font-family:'Inter Variable',Arial,sans-serif;font-size:14px;font-weight:550;letter-spacing:.1px}
+.button-mark{height:54px}
+@media(max-width:450px){.build-button,.docs-button{font-size:14px}.footer-brand span{font-size:27px}.footer-about>p{font-size:14px}}
+ .site-footer{padding-inline:4vw}.closing h2{font-weight:600;letter-spacing:-.035em}.closing-description{font-size:18px}.closing-controls{width:min(100%,560px)}.footer-about>p{font-size:16px;line-height:1.7}.footer-group h3{font-size:12px;letter-spacing:.07em}.footer-group li a{font-size:15px;min-height:42px}.byok{font-size:15px}.footer-bottom,.footer-note{font-size:13px}.copy-prompt{font-size:13px}.footer-columns{grid-template-columns:1.5fr repeat(4,1fr);gap:32px}.footer-brand span{font-size:30px}
+@media(max-width:1100px){.footer-columns{grid-template-columns:repeat(4,1fr);gap:26px}.footer-about{grid-column:1 / -1}.footer-about>p{max-width:420px}.footer-about>p br{display:none}}
+@media(max-width:650px){.site-footer{padding-inline:5vw}.footer-columns{grid-template-columns:repeat(2,minmax(0,1fr))}.closing-description{font-size:16px}.byok{font-size:14px}.footer-bottom{align-items:flex-start}.footer-note{font-size:12px}.closing h2{font-size:34px}}
+@media(max-width:420px){.closing-actions{grid-template-columns:1fr}.build-button,.docs-button{font-size:14px}.docs-button{min-height:52px}}
+</style>
+<script>
+const footer=document.querySelector<HTMLElement>('[data-closing-footer]');
+if(footer){
+ const copy=footer.querySelector<HTMLButtonElement>('.copy-prompt')!;
+ const toggle=footer.querySelector<HTMLButtonElement>('.prompt-toggle')!;
+ const prompt=footer.querySelector<HTMLPreElement>('pre')!;
+ const label=footer.querySelector<HTMLElement>('.copy-label')!;
+ const status=footer.querySelector<HTMLElement>('.copy-status')!;
+ const open=(show:boolean)=>{prompt.hidden=!show;toggle.setAttribute('aria-expanded',String(show));toggle.setAttribute('aria-label',show?'Hide setup prompt':'Show setup prompt');};
+ toggle.addEventListener('click',()=>open(prompt.hidden));
+ copy.addEventListener('click',async()=>{
+  try{await navigator.clipboard.writeText(prompt.textContent??'');label.textContent='Prompt copied';status.textContent='Setup prompt copied to clipboard.';}
+  catch{open(true);getSelection()?.selectAllChildren(prompt);label.textContent='Select and copy below';status.textContent='Clipboard unavailable. The setup prompt is selected for manual copying.';}
+ });
+}
+</script>

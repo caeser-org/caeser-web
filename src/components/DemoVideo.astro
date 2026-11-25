@@ -1,0 +1,133 @@
+---
+interface Props { sources?: { src: string; type: string }[]; poster?: string; }
+const { sources = [], poster } = Astro.props;
+const strands = Array.from({ length: 23 }, (_, i) => {
+  const y = 35 + i * 17;
+  return { d: `M -80 ${y} C 120 ${y - 25}, 125 ${y + 145}, 305 ${y + 135} S 600 ${y + 90}, 790 ${y + 350} S 1080 ${y + 490}, 1500 ${y + 350}`, opacity: .28 + (i % 4) * .2, dash: ['1 5', '4 5', '1 8', '7 4'][i % 4] };
+});
+---
+<section class="demo-section" aria-labelledby="demo-title">
+  <svg class="demo-stream" viewBox="0 0 1440 940" fill="none" preserveAspectRatio="none" aria-hidden="true">
+    <defs>
+      <linearGradient id="demo-flow-ink" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="#777b76" stop-opacity=".35" />
+        <stop offset=".16" stop-color="#171b18" />
+        <stop offset=".5" stop-color="#171b18" />
+        <stop offset=".64" stop-color="#171b18" />
+        <stop offset="1" stop-color="#555b55" stop-opacity=".6" />
+      </linearGradient>
+      <linearGradient id="demo-flow-fade" x1="0" y1="0" x2="0" y2="940" gradientUnits="userSpaceOnUse">
+        <stop offset="0" stop-color="white" />
+        <stop offset=".84" stop-color="white" />
+        <stop offset="1" stop-color="black" />
+      </linearGradient>
+      <mask id="demo-flow-mask"><rect width="1440" height="940" fill="url(#demo-flow-fade)" /></mask>
+    </defs>
+    <g mask="url(#demo-flow-mask)">
+    {strands.map(({d, opacity, dash}, i) => <path class="demo-strand" style={`--flow-duration: ${18 + i % 4 * 3}s; --flow-delay: ${-i * 1.7}s`} d={d} stroke="url(#demo-flow-ink)" stroke-width="1.25" stroke-dasharray={dash} opacity={opacity} />)}
+    {[ [30,95], [210,190], [80,310], [285,382], [1115,650], [1395,436], [1300,560], [1220,711] ].map(([x,y]) => <path d={`M ${x-4} ${y} h 8 M ${x} ${y-4} v 8`} stroke="currentColor" stroke-width="1.5" />)}
+    {strands.flatMap(({ d }, i) => Array.from({ length: 3 }, (_, j) => {
+      const width = 8 + (i + j) % 3 * 3;
+      const height = 4 + (i + j) % 2;
+      const duration = 25 + i % 6 * 2;
+      return (
+        <rect class="demo-particle" x={-width / 2} y={-height / 2} width={width} height={height} rx="1.2" fill="#f8f8f6" stroke="currentColor" stroke-width="1.1" opacity={.55 + (i % 3) * .2}>
+          <animateMotion path={d} dur={`${duration}s`} begin={`${-(j / 3 * duration + i * 1.37)}s`} rotate="auto" repeatCount="indefinite" />
+        </rect>
+      );
+    }))}
+    </g>
+  </svg>
+  <div class="demo-layout">
+    <div class="demo-stack">
+      <div class="demo-back demo-back-far" aria-hidden="true"></div>
+      <div class="demo-back demo-back-near" aria-hidden="true"></div>
+      <div class="demo-screen">
+        {sources.length ? <><video poster={poster} loop muted playsinline aria-label="Caeser demo recording">{sources.map((s) => <source src={s.src} type={s.type} />)}</video><button class="demo-play" type="button" aria-label="Play demo"><svg class="play-icon" viewBox="0 0 42 48" aria-hidden="true"><path d="M7 4 Q3 2 3 7 V41 Q3 46 7 44 L37 27 Q42 24 37 21Z" fill="currentColor" /></svg><svg class="pause-icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="5.5" height="16" rx="1.4" fill="currentColor" /><rect x="13.5" y="4" width="5.5" height="16" rx="1.4" fill="currentColor" /></svg></button></> : <div class="demo-preview" role="img" aria-label="Caeser demo recording preview"><svg width="42" height="48" viewBox="0 0 42 48" aria-hidden="true"><path d="M7 4 Q3 2 3 7 V41 Q3 46 7 44 L37 27 Q42 24 37 21Z" fill="currentColor" /></svg></div>}
+      </div>
+    </div>
+    <div class="demo-copy">
+      <p class="demo-eyebrow"><span aria-hidden="true"></span>Demo</p>
+      <h2 id="demo-title">See Caeser in action</h2>
+      <p class="demo-description">A short walkthrough of a real failed run,<br class="demo-break" /> the investigation, and the final report.</p>
+    </div>
+  </div>
+</section>
+<script>
+  document.querySelectorAll<HTMLElement>('.demo-section').forEach((section) => {
+    const stream = section.querySelector<SVGSVGElement>('.demo-stream');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let visible = false;
+    const update = () => {
+      const paused = reduced.matches || !visible || document.hidden;
+      section.classList.toggle('motion-paused', paused);
+      if (paused) stream?.pauseAnimations();
+      else stream?.unpauseAnimations();
+    };
+    const observer = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; update(); });
+    observer.observe(section);
+    reduced.addEventListener('change', update);
+    document.addEventListener('visibilitychange', update);
+    update();
+    document.addEventListener('astro:before-swap', () => {
+      observer.disconnect();
+      reduced.removeEventListener('change', update);
+      document.removeEventListener('visibilitychange', update);
+    }, { once: true });
+  });
+  document.querySelectorAll<HTMLElement>('.demo-screen').forEach((screen) => {
+    const video = screen.querySelector<HTMLVideoElement>('video');
+    const button = screen.querySelector<HTMLButtonElement>('.demo-play');
+    if (!video || !button) return;
+    const sync = () => {
+      const playing = !video.paused && !video.ended;
+      button.classList.toggle('is-playing', playing);
+      button.setAttribute('aria-label', playing ? 'Pause demo' : 'Play demo');
+    };
+    const toggle = () => { if (video.paused) video.play().catch(() => {}); else video.pause(); };
+    button.addEventListener('click', toggle);
+    video.addEventListener('click', toggle);
+    video.addEventListener('play', sync);
+    video.addEventListener('pause', sync);
+    video.addEventListener('ended', sync);
+    sync();
+  });
+</script>
+<style>
+.demo-section{min-height:85svh;padding:100px 8vw;display:grid;align-items:center;position:relative;overflow:hidden;background:#f8f8f6;color:#232625;isolation:isolate}
+.demo-stream{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}
+.demo-particle{filter:drop-shadow(0 2px 2px #20241e30)}
+.demo-strand{animation:demo-flow var(--flow-duration) linear var(--flow-delay) infinite}
+@keyframes demo-flow{to{stroke-dashoffset:-240}}
+.motion-paused .demo-strand{animation-play-state:paused}
+@media(prefers-reduced-motion:reduce){.demo-particle{filter:drop-shadow(0 2px 2px #20241e30)}
+.demo-strand{animation:none}}
+.demo-layout{width:100%;max-width:1200px;margin-inline:auto;display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);align-items:center;gap:6vw}
+.demo-stack{position:relative;margin:0 0 30px 32px;isolation:isolate}
+.demo-screen,.demo-back{border:1px solid #414442;border-radius:22px;background:#f8f8f6}
+.demo-screen{position:relative;aspect-ratio:16/8.5;overflow:hidden;box-shadow:0 4px 8px #20241e0d,0 20px 32px #20241e1c}
+.demo-back{position:absolute;inset:0;pointer-events:none}
+.demo-back-near{transform:translate(-16px,16px);z-index:-1;box-shadow:0 8px 14px #20241e18}
+.demo-back-far{transform:translate(-32px,30px);z-index:-2;box-shadow:0 12px 20px #20241e20,0 34px 48px -10px #20241e38}
+.demo-preview{height:100%;display:grid;place-items:center;background:linear-gradient(125deg,#f8f8f6,#f2f1ef)}
+.demo-preview svg{width:36px;height:42px}
+.demo-screen video{display:block;width:100%;height:100%;object-fit:cover;background:#171717;cursor:pointer}
+.demo-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:68px;height:68px;border:0;border-radius:50%;background:rgba(23,23,23,.72);color:#fff;display:grid;place-items:center;cursor:pointer;z-index:2;transition:opacity .25s,transform .25s}
+.demo-play .play-icon{width:20px;height:22px;margin-left:3px}
+.demo-play .pause-icon{width:22px;height:22px;display:none}
+.demo-play:hover{transform:translate(-50%,-50%) scale(1.06)}
+.demo-play.is-playing .play-icon{display:none}
+.demo-play.is-playing .pause-icon{display:block}
+.demo-play.is-playing{opacity:0}
+.demo-screen:hover .demo-play.is-playing{opacity:1}
+.demo-copy{padding-bottom:26px;position:relative;z-index:1;background:#f8f8f6;box-shadow:0 0 25px 12px #f8f8f6}
+.demo-eyebrow{display:flex;align-items:center;gap:14px;margin:0 0 22px;font:600 14px/1.4 'Inter Variable',sans-serif;letter-spacing:.2em;text-transform:uppercase}
+.demo-eyebrow span{width:28px;height:1px;background:currentColor}
+.demo-copy h2{font:400 clamp(30px,3.15vw,49px)/1.12 'Inter Variable',Arial,sans-serif;letter-spacing:-.04em;margin:0 0 18px;text-wrap:balance}
+.demo-description{font:400 clamp(14px,1.35vw,18px)/1.55 'Inter Variable',Arial,sans-serif;color:#525551;margin:0}
+@media(max-width:900px){.demo-layout{gap:5vw}.demo-break{display:none}.demo-screen,.demo-back{border-radius:16px}}
+@media(max-width:650px){.demo-section{min-height:650px;padding:75px 7vw}.demo-layout{grid-template-columns:1fr;gap:55px}.demo-stack{margin:0 0 0 24px}.demo-back-near{transform:translate(-12px,12px)}.demo-back-far{transform:translate(-24px,24px)}.demo-copy{padding-bottom:0}.demo-eyebrow{margin-bottom:16px}.demo-copy h2{font-size:34px}.demo-description{font-size:15px}.demo-stream{width:170%;max-width:none;left:-35%;opacity:.6}}
+.demo-description{font-weight:500;color:#41463e}
+ .demo-section{padding-inline:4vw}.demo-layout{max-width:1680px;gap:5vw}.demo-copy h2{font-weight:600;letter-spacing:-.035em}.demo-description{font-size:18px;color:#454c40}.demo-eyebrow{font-size:13px;letter-spacing:.12em}
+@media(max-width:650px){.demo-section{padding-inline:5vw}.demo-description{font-size:16px}}
+</style>

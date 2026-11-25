@@ -1,0 +1,114 @@
+---
+const modules=[{id:'model',x:180,y:185,label:'AI HARNESS',detail:'optional interpretation',type:'model'},{id:'sandbox',x:500,y:95,label:'EXECUTION',detail:'explicit / local or Docker',type:'sandbox'},{id:'publish',x:820,y:185,label:'PUBLICATION',detail:'PR comment + artifacts',type:'report'},{id:'ci',x:245,y:775,label:'CI EVIDENCE',detail:'logs / artifacts',type:'input'},{id:'source',x:755,y:775,label:'SOURCE REVISION',detail:'matching Git commit',type:'input'}];
+const core=[{id:'parse',x:350,y:450,label:'Failure episodes'},{id:'analysis',x:500,y:365,label:'Go source graph'},{id:'leads',x:650,y:450,label:'Function leads'},{id:'state',x:500,y:495,label:'Investigation'},{id:'hypotheses',x:385,y:555,label:'Hypotheses'},{id:'report',x:615,y:555,label:'Report evidence'}];
+const routes=[
+{to:'parse',d:'M245 730V640Q245 615 266 601L335 555V465',start:0,duration:1.2,optional:false},
+{to:'analysis',d:'M755 730V652Q755 625 735 611L700 590V385L525 375',start:0,duration:1.2,optional:false},
+{to:'analysis',d:'M374 440L477 379',start:1.3,duration:.7,optional:false},
+{to:'leads',d:'M523 379L627 440',start:2.05,duration:.7,optional:false},
+{to:'state',d:'M624 459L526 489',start:2.8,duration:.7,optional:false},
+{to:'report',d:'M521 507L591 544',start:3.55,duration:.65,optional:false},
+{to:'publish',d:'M640 550L788 463Q820 444 820 420V245',start:4.25,duration:1.15,optional:false},
+{to:'model',d:'M591 548L180 310V245',start:4.3,duration:1.2,optional:true},
+{to:'hypotheses',d:'M194 245V330L356 425V540',start:5.6,duration:1.1,optional:true},
+{to:'state',d:'M408 543L476 508',start:6.75,duration:.6,optional:true},
+{to:'sandbox',d:'M500 473V155',start:3.55,duration:1.2,optional:true},
+{to:'parse',d:'M481 155V285L350 361V432',start:4.9,duration:1.1,optional:true},
+];
+const diamond=(x:number,y:number,w:number,d:number)=>`${x},${y-d/2} ${x+w/2},${y} ${x},${y+d/2} ${x-w/2},${y}`;
+---
+<section class="architecture-section" aria-labelledby="architecture-title">
+ <header class="architecture-header"><h2 id="architecture-title">Evidence through<br/>the engine.</h2><p>Failed-run artifacts and the matching source revision feed the Go investigation.</p><p>Model analysis and execution are optional. Their results remain distinct from deterministic findings.</p><a href="/docs/runtime-architecture/">Read the architecture ↗</a></header>
+ <div class="architecture-stage"><svg class="architecture-scene" viewBox="25 -15 950 890" fill="none" role="img" aria-label="Isometric investigation engine with failure episodes, Go source graph, function leads, hypotheses, and report evidence. Inputs are failed CI artifacts and matching source. Optional model harness and execution connect above; publication exports the report.">
+  <g class="central-platform"><path class="platform-edge" d="M180 480L500 665L820 480V494L500 679L180 494Z"/><polygon class="platform-top" points="500,295 820,480 500,665 180,480"/>
+   <g class="platform-grid"><path d="M260 434L580 619M340 388L660 573M420 341L740 526M260 526L580 341M340 573L660 388M420 619L740 434"/></g>
+   <text class="engine-label" x="500" y="705" text-anchor="middle">INVESTIGATION ENGINE</text>
+  </g>
+  <g>{routes.map((r,i)=><path data-route={i} data-target={r.to} data-start={r.start} data-duration={r.duration} class:list={['route',{optional:r.optional}]} d={r.d}/>)}</g>
+  {modules.map(n=><g class="module">
+   <path class="module-edge" d={`M${n.x-105} ${n.y}L${n.x} ${n.y+61}L${n.x+105} ${n.y}V${n.y+12}L${n.x} ${n.y+73}L${n.x-105} ${n.y+12}Z`}/>
+   <polygon class="module-top" points={diamond(n.x,n.y,210,122)}/>
+   <g data-lift={n.id}>
+    {n.type!=='input'?<g class="console" transform={`matrix(1 .577 0 1 ${n.x-39} ${n.y-24})`}><rect x="0" y="-76" width="78" height="57" rx="2"/><path d="M0 -65H78"/><circle cx="6" cy="-70" r="1"/><circle cx="12" cy="-70" r="1"/>{n.type==='model'?<path d="M12 -52H29V-36H12ZM49 -52H66V-36H49ZM29 -44H49M39 -44V-27"/>:n.type==='sandbox'?<path d="M12 -52L21 -45L12 -38M28 -38H42M51 -53H66V-31H51Z"/>:<path d="M12 -53H64M12 -44H64M12 -35H50"/>}<path d="M39 -19V-6M27 -6H51"/></g>:<g class="input-tokens">{[[-35,-8],[10,-8],[-13,18]].map(([dx,dy])=><g><polygon points={diamond(n.x+dx,n.y+dy,40,23)}/><path d={`M${n.x+dx-20} ${n.y+dy}v7l20 11.5 20 -11.5v-7`}/><path d={`M${n.x+dx-8} ${n.y+dy-2}l8 4 8 -4`}/></g>)}</g>}
+   </g>
+   <text class="module-label" x={n.x} y={n.y-118} text-anchor="middle">{n.label}</text><text class="module-detail" x={n.x + 14} y={n.y+91} text-anchor="start">{n.detail}</text>
+  </g>)}
+  {core.map(n=><g class="core-node">
+    <ellipse class="disc-edge" cx={n.x} cy={n.y+6} rx="28" ry="16"/><ellipse class="disc-top" cx={n.x} cy={n.y+1} rx="28" ry="16"/>
+    <g data-lift={n.id}><path class="cube-left" d={`M${n.x-16} ${n.y-22}L${n.x} ${n.y-13}V${n.y+4}L${n.x-16} ${n.y-5}Z`}/><path class="cube-right" d={`M${n.x} ${n.y-13}L${n.x+16} ${n.y-22}V${n.y-5}L${n.x} ${n.y+4}Z`}/><polygon class="cube-top" points={diamond(n.x,n.y-22,32,18)}/></g>
+    <rect class="label-bg" x={n.x-63} y={n.y-56} width="126" height="21" rx="10"/><text class="core-label" x={n.x} y={n.y-42} text-anchor="middle">{n.label}</text>
+  </g>)}
+  <g>{routes.map((r,i)=><rect data-packet={i} opacity="0" x="-3" y="-2" width="6" height="4" class="data-packet"/>)}</g>
+ </svg><div class="architecture-key"><span><i></i> Core evidence path</span><span><i class="dashed"></i> Optional investigation</span></div></div>
+</section>
+<style>
+.architecture-section{height:100svh;min-height:650px;padding:25px 4vw;background:#f8f8f6;color:#222;display:grid;grid-template-columns:23% 77%;align-items:center;gap:0;overflow:hidden;box-sizing:border-box}.architecture-header{align-self:center;max-width:440px}h2{font:400 clamp(36px,3.6vw,50px)/1.08 'Inter Variable',Arial,sans-serif;letter-spacing:-.045em;margin:0 0 26px}.architecture-header p{font-size:16px;line-height:1.8;color:#50564c;margin:0 0 16px}.architecture-header a{display:inline-flex;align-items:center;justify-content:space-between;gap:28px;width:max-content;min-height:42px;padding:0 22px;margin-top:6px;border:1px solid #c5c5c0;border-radius:999px;text-transform:uppercase;font:14px 'Inter Variable',Arial,sans-serif;letter-spacing:.4px;transition:transform .2s,background .2s,color .2s}.architecture-header a:hover{transform:translateY(-2px);background:#333;color:#fff}.architecture-stage{height:100%;min-height:0;display:flex;flex-direction:column;align-items:center}.architecture-scene{display:block;width:100%;height:calc(100% - 30px)}.platform-top{fill:#e8e8e2;stroke:#8c8c83;stroke-width:1}.platform-edge{fill:#d4d4c9;stroke:#8c8c83;stroke-width:1}.platform-grid path{stroke:#c9c9be;stroke-width:.7}.engine-label{font:14px 'Inter Variable',Arial,sans-serif;letter-spacing:1.5px;fill:#333}.route{stroke:#62625a;stroke-width:1.1}.route.optional{stroke:#99998f;stroke-dasharray:3 5}.data-packet{fill:#45453e}.module-top{fill:#f1f1ec;stroke:#55554d;stroke-width:1.1}.module-edge{fill:#d7d7cc;stroke:#55554d;stroke-width:1.1}.console rect{fill:#fafaf7;stroke:#55554d;stroke-width:1}.console path{stroke:#68685e;stroke-width:1}.console circle{fill:#777}.module-label{font:600 14px 'Inter Variable',Arial,sans-serif;letter-spacing:.8px;fill:#333}.module-detail{font:14px 'Inter Variable',Arial,sans-serif;fill:#333}.input-tokens polygon{fill:#e1e1d5;stroke:#77776b;stroke-width:1}.input-tokens path{fill:none;stroke:#77776b;stroke-width:1}.disc-edge{fill:#99998b;stroke:#55554d;stroke-width:1}.disc-top{fill:#f5f5ef;stroke:#66665b;stroke-width:1}.cube-left{fill:#c4c4b7;stroke:#55554d;stroke-width:1}.cube-right{fill:#a6a696;stroke:#55554d;stroke-width:1}.cube-top{fill:#e6e6d9;stroke:#55554d;stroke-width:1}.label-bg{fill:#d4d4c8}.core-label{font:14px 'Inter Variable',Arial,sans-serif;fill:#222}.architecture-key{display:flex;gap:22px;align-items:center;justify-content:center;font:14px 'Inter Variable',Arial,sans-serif;color:#50564c;height:30px;flex:none}.architecture-key span{display:flex;align-items:center;gap:8px}.architecture-key i{width:22px;border-top:1px solid #777}.architecture-key .dashed{border-top-style:dashed}
+@media(max-width:800px){.architecture-section{grid-template-columns:1fr;grid-template-rows:auto minmax(0,1fr);padding:25px 4vw;min-height:750px}.architecture-header{max-width:none;display:grid;grid-template-columns:1fr;align-items:center}h2{font-size:34px;margin:12px 0}.architecture-header p,.architecture-header a{display:none}.architecture-scene{width:100%;height:calc(100% - 30px)}.architecture-key{font-size:14px}}
+.architecture-header p,.architecture-header a,.architecture-key{font-weight:500;color:#4e534b}.module-detail{fill:#333;font-weight:500}.engine-label,.core-label{font-weight:600}
+h2{font-weight:600;letter-spacing:-.035em;line-height:1.15}.architecture-header p{font-size:17px;color:#454c40}.architecture-key{font-size:14px}.module-detail{font-size:13px;fill:#454c40}.architecture-header a{font-size:14px}
+</style>
+<script>
+const section=document.querySelector<HTMLElement>('.architecture-section');
+if(section){
+ const svg=section.querySelector<SVGSVGElement>('svg')!;
+ const paths=Array.from(svg.querySelectorAll<SVGPathElement>('[data-route]'));
+ const packets=Array.from(svg.querySelectorAll<SVGRectElement>('[data-packet]'));
+ const blocks=new Map(Array.from(svg.querySelectorAll<SVGGElement>('[data-lift]')).map(el=>[el.dataset.lift!,el]));
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)');
+ // Sample route geometry once; frame updates only interpolate cached points.
+ const records=paths.map(path=>{
+  const length=path.getTotalLength();
+  return {length,start:Number(path.dataset.start),duration:Number(path.dataset.duration),target:path.dataset.target!,
+   samples:Array.from({length:257},(_,i)=>path.getPointAtLength(length*i/256))};
+ });
+ let visible=false,frame=0,last=0,time=0;
+ const cycleDuration=7.2;
+ const smooth=(x:number)=>{const n=Math.min(1,Math.max(0,x));return n*n*(3-2*n);};
+ const lastLift=new Map<string,number>();
+ const draw=()=>{
+  const phase=time%cycleDuration;
+  const inert=reduced.matches;
+  paths.forEach((path,i)=>{
+   const r=records[i],progress=(phase-r.start)/r.duration;
+   const active=progress>=0&&progress<=1&&!inert;
+   const packet=packets[i];
+   if(active){
+    const position=Math.min(255.999,progress*256),index=Math.floor(position),mix=position-index;
+    const a=r.samples[index],next=r.samples[index+1];
+    const px=a.x+(next.x-a.x)*mix,py=a.y+(next.y-a.y)*mix;
+    const angle=Math.atan2(next.y-py,next.x-px)*180/Math.PI;
+    packet.setAttribute('transform',`translate(${px} ${py}) rotate(${angle})`);
+    if(packet.getAttribute('opacity')!=='1')packet.setAttribute('opacity','1');
+   }else if(packet.getAttribute('opacity')!=='0'){packet.setAttribute('opacity','0');}
+  });
+  blocks.forEach((block,id)=>{
+   let lift=0;
+   if(!inert)for(const r of records){
+    if(r.target!==id)continue;
+    const age=phase-r.start-r.duration;
+    if(age>=0&&age<.75){const amount=age<.18?smooth(age/.18):age<.3?1:1-smooth((age-.3)/.45);lift=Math.max(lift,amount*3);}
+   }
+   if(lastLift.get(id)===lift)return;
+   lastLift.set(id,lift);
+   if(lift)block.setAttribute('transform',`translate(0 ${-lift})`);
+   else block.removeAttribute('transform');
+  });
+ };
+ const running=()=>visible&&!document.hidden&&!reduced.matches;
+ const tick=(now:number)=>{
+  if(!running()){frame=0;return;}
+  frame=requestAnimationFrame(tick);
+  if(now-last<30)return;
+  time+=Math.min((now-last)/1000,.06);last=now;draw();
+ };
+ const start=()=>{if(!frame){last=performance.now();frame=requestAnimationFrame(tick);}};
+ const stop=()=>{if(frame){cancelAnimationFrame(frame);frame=0;}};
+ const sync=()=>{running()?start():stop();};
+ const observer=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;sync();});observer.observe(section);
+ const onVisibility=()=>sync();
+ document.addEventListener('visibilitychange',onVisibility);
+ reduced.addEventListener('change',()=>{draw();sync();});
+ draw();sync();
+ document.addEventListener('astro:before-swap',()=>{stop();observer.disconnect();document.removeEventListener('visibilitychange',onVisibility);},{once:true});
+}
+</script>

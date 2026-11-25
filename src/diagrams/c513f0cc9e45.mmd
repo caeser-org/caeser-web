@@ -1,0 +1,15 @@
+flowchart TD
+    R[Requested experiment and exact revision] --> W[Prepare disposable workspace]
+    W --> V[Validate command, directory, environment and limits]
+    V --> B{Configured backend}
+    B --> L[Local process group]
+    B --> D[Disposable Docker container]
+    L --> O[Capture bounded stdout and stderr]
+    D --> O
+    O --> S[Record exit, timing and terminal outcome]
+    S --> A[Preserve evidence and selected artifacts]
+    A --> C[Clean up workspace and execution resources]
+    L -. cancellation .-> K[Terminate process group]
+    D -. cancellation .-> K2[Force-remove container]
+    K --> S
+    K2 --> S

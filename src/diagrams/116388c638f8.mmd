@@ -1,0 +1,10 @@
+flowchart TD
+    CI[Existing failed CI run] --> D[Diagnosis job: read permissions]
+    S[Checkout of failing revision] --> D
+    B[Prebuilt Caeser release] --> D
+    D --> R[JSON report, evidence bundle, Markdown brief]
+    R --> A[Optional model analysis job]
+    A --> F[Final report artifact]
+    R --> F
+    F --> P[Publication job: comment permissions]
+    P --> C[One updated PR comment]
