@@ -12,7 +12,6 @@ const lines = ['--- FAIL:','TestLateRouteRegistrationSkippedNodes','','Observed 
     <article class="debug card small"><h3>Debug &amp; trace</h3></article>
     <article class="sandbox card small"><h3>Sandbox<br/>&amp;<br/>checks</h3><svg class="probe-grid" viewBox="0 0 60 52" fill="none" aria-hidden="true"><path d="M7 13 23 4 54 4 39 13Z" fill="#eeeee9" stroke="#98988e"/><path d="M39 13 54 4 54 39 39 48Z" fill="#e1e1da" stroke="#98988e"/><path d="M7 13H39V48H7Z" fill="#fafaf7" stroke="#98988e"/>{Array.from({length:30},(_,i)=><rect class="probe-cell" x={11+i%5*5} y={18+Math.floor(i/5)*4.8} width="2" height="2" style={`--delay:${(i%7)*-.4}s`}/>)}</svg></article>
     <article class="report card small caeser-report"><h3>Final report</h3><span class="preview-label">EVIDENCE-BACKED</span><div class="report-preview"><strong>Failed Go test</strong><p>Observed <span>Test failure + stack</span></p><p>Source lead <span>node.getValue · tree.go:418</span></p><p>Assessment <span>Inferred · needs verification</span></p></div><a href="/docs/reports/">Report formats <span aria-hidden="true">↗</span></a></article>
-    <article class="report card small assistant-report"><h3>Assistant reply</h3><span class="preview-label">TYPICAL RESPONSE</span><div class="report-preview"><strong>Looks like a race condition</strong><p>Likely <span>routes registered after the server starts</span></p><p>Suggestion <span>review the router setup and add a test</span></p><p>Confidence <span>needs verification</span></p></div></article>
   </div>
   <footer><p>Continue in your assistant with the exported investigation brief.</p><a href="/docs/reports/">Read about reports <span aria-hidden="true">↗</span></a></footer>
 </section>
@@ -27,14 +26,12 @@ const lines = ['--- FAIL:','TestLateRouteRegistrationSkippedNodes','','Observed 
 .report{min-height:270px}
 .input{display:flex;flex-direction:column}.input h3,.input .foot{flex-shrink:0}.input .log{flex:1;min-height:0;overflow:hidden;margin:25px 0 20px;mask-image:linear-gradient(transparent,#000 7%,#000 92%,transparent)}.log-scroll{animation:ci-log-scroll 22s linear infinite;will-change:transform}.log-copy{padding-bottom:24px}.log:focus .log-scroll,.log:hover .log-scroll,[data-motion-paused] .log-scroll{animation-play-state:paused}.log:focus-visible{outline:1px solid #73736b;outline-offset:5px}@keyframes ci-log-scroll{to{transform:translateY(-50%)}}@media(prefers-reduced-motion:reduce){.log-scroll{animation:none}}@media(max-width:760px){.input{height:420px}}
 .sandbox{background:transparent;border:0;box-shadow:none;padding:0;overflow:visible}.sandbox h3{position:absolute;bottom:calc(100% + 12px);left:50%;transform:translateX(-50%);width:130px;font-size:13px;line-height:1.4}.sandbox h3 br{display:none}.sandbox h3 br::after{content:' '}.sandbox .probe-grid{width:100%;max-width:none;height:100%;margin:0;filter:drop-shadow(0 8px 9px #20202018)}
-.assistant{left:46%;width:30%;padding:26px 28px}.assistant ul{font-size:15px;line-height:1.9}.assistant h3{font-size:19px}.context{font-size:12px}.analysis,.debug{left:46%;width:14%}.sandbox{left:64%;width:8%}.report{left:78%;width:21%;padding:23px;min-height:285px}.assistant-report{top:2%;height:auto;min-height:0}.report-preview{font-size:12px}.report-preview strong{font-size:13px}.report a{font-size:12px}.preview-label{font-size:11px}
+.assistant{left:46%;width:30%;padding:26px 28px}.assistant ul{font-size:15px;line-height:1.9}.assistant h3{font-size:19px}.context{font-size:12px}.analysis,.debug{left:46%;width:14%}.sandbox{left:64%;width:8%}.report{left:78%;width:21%;padding:23px;min-height:285px}.report-preview{font-size:12px}.report-preview strong{font-size:13px}.report a{font-size:12px}.preview-label{font-size:11px}
 @media(max-width:760px){.sandbox{min-height:150px;padding-top:25px}.sandbox h3{top:0;bottom:auto;width:100%}.sandbox .probe-grid{width:110px;height:110px}}
 @media(max-width:760px){.assistant,.analysis,.debug,.sandbox,.report{left:auto;width:auto}.assistant{padding:25px;order:9}.assistant h3{font-size:17px}.sandbox{grid-column:1 / -1;min-height:0;padding:24px;background:#fbfbf9;border:1px solid #8f8f88;border-radius:11px;box-shadow:0 8px 25px -24px #222;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}.sandbox h3{position:static;transform:none;width:auto;font-size:17px}.sandbox .probe-grid{width:120px;height:120px}.report{grid-column:1 / -1;min-height:260px}.report-preview{font-size:13px}.report-preview strong{font-size:14px}}
 .assistant{background:#fdf6e0;border-color:#e6d39a}
 .assistant-tag{display:inline-block;margin:0 0 14px;font:650 10px/1 ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.12em;color:#8a7a2e;background:#f8edc2;border:1px solid #e7d69a;border-radius:999px;padding:5px 10px}
-.assistant-report{background:#fdf6e0;border-color:#e6d39a}
-.assistant-report .preview-label{color:#8a7a2e}
-@media(max-width:760px){.assistant,.analysis,.debug,.sandbox{display:none}.assistant-report{order:1}.caeser-report{order:2}.report{min-height:0}}
+@media(max-width:760px){.assistant,.analysis,.debug,.sandbox{display:none}.report{min-height:0}}
 
 .investigation footer{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease;will-change:opacity,transform}
 .investigation footer[data-revealed]{opacity:1;transform:none}
@@ -51,14 +48,13 @@ if(section){
  const layout=()=>{
   const flow=section.querySelector<HTMLElement>('.flow')!,bounds=flow.getBoundingClientRect();
   const box=(s:string)=>{const r=section.querySelector<HTMLElement>(s)!.getBoundingClientRect();return{x:r.left-bounds.left,y:r.top-bounds.top,w:r.width,h:r.height}};
-  const input=box('.input'),assistant=box('.assistant'),analysis=box('.analysis'),debug=box('.debug'),sandbox=box('.sandbox'),caeserReport=box('.caeser-report'),assistantReport=box('.assistant-report');
+  const input=box('.input'),assistant=box('.assistant'),analysis=box('.analysis'),debug=box('.debug'),sandbox=box('.sandbox'),caeserReport=box('.caeser-report');
   const curve=(x:number,y:number,tx:number,ty:number)=>`M${x} ${y} C${x+(tx-x)*.55} ${y},${tx-(tx-x)*.45} ${ty},${tx} ${ty}`;
   const paths:string[]=[];
   if(matchMedia('(max-width:760px)').matches){
    type B=typeof input;const cx=(b:B,side:number)=>b.x+b.w*side,bottom=(b:B)=>b.y+b.h;
    const link=(ax:number,ay:number,bx:number,by:number)=>`M${ax} ${ay} C${ax} ${ay+(by-ay)*.5},${bx} ${ay+(by-ay)*.5},${bx} ${by}`;
-   paths.push(link(cx(input,.5),bottom(input),cx(assistantReport,.5),assistantReport.y));
-   paths.push(link(cx(assistantReport,.5),bottom(assistantReport),cx(caeserReport,.5),caeserReport.y));
+   paths.push(link(cx(input,.5),bottom(input),cx(caeserReport,.5),caeserReport.y));
   }else{
    const hub=box('.junction');
    for(let i=0;i<12;i++)paths.push(curve(-bounds.left-20,(i/11)*bounds.height,input.x,input.y+input.h*(.28+i*.04)));
@@ -67,7 +63,6 @@ if(section){
    for(const target of [analysis,debug])for(let i=0;i<2;i++)paths.push(curve(hub.x+hub.w,hub.y+hub.h*(.65+i*.18),target.x,target.y+target.h*(.45+i*.15)));
    for(const source of [analysis,debug])paths.push(curve(source.x+source.w,source.y+source.h*.5,sandbox.x,sandbox.y+sandbox.h*(source===analysis?.3:.7)));
    for(let i=0;i<2;i++)paths.push(curve(sandbox.x+sandbox.w,sandbox.y+sandbox.h*(.4+i*.15),caeserReport.x,caeserReport.y+caeserReport.h*(.4+i*.15)));
-   paths.push(curve(assistant.x+assistant.w,assistant.y+assistant.h*.5,assistantReport.x,assistantReport.y+assistantReport.h*.5));
   }
   svg.setAttribute('viewBox',`0 0 ${bounds.width} ${bounds.height}`);
   svg.querySelectorAll<SVGPathElement>('[data-line]').forEach((p,i)=>p.setAttribute('d',paths[i]??''));
