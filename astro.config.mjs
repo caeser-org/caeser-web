@@ -14,7 +14,7 @@ export default defineConfig({
       title: "caeser.",
       description:
         "Detailed documentation for Caeser, the Go CI investigation engine.",
-      favicon: "/favicon.svg",
+      favicon: "/caeser-icon.svg",
       customCss: ["./src/styles/starlight-theme.css"],
       head: [
         {
