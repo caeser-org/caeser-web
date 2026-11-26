@@ -7,7 +7,7 @@ import starlight from "@astrojs/starlight";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://astroship.web3templates.com",
+  site: "https://caeser.yaxh.tech",
   prefetch: { prefetchAll: true, defaultStrategy: "viewport" },
   integrations: [
     starlight({
