@@ -161,6 +161,85 @@ labeled separately and cannot change deterministic classification or mechanism
 verification. Valid evidence IDs do not guarantee that the model's explanation
 is correct. A model failure leaves the original report available.
 
+## Retrieval from the failing revision
+
+Caeser's model harness uses retrieval augmented generation (RAG) with Git as
+the retrieval backend. The retrieval unit is a bounded Go source excerpt or
+literal search result at the exact failing commit.
+
+1. Build the input from the deterministic report: the failed test and message,
+   ranked source leads, reproduction status, and evidence IDs.
+2. Compact the evidence before submission. Failure logs and source observations
+   get priority, and repeated evidence IDs are removed.
+3. With code retrieval enabled, ask the model for up to five read-only lookups.
+   A lookup names a repository-relative Go file and line, or a literal search
+   term. The harness reads committed Git objects at the supplied revision.
+4. Add successful lookups to the evidence packet with their own evidence IDs.
+   The final model call can cite those excerpts alongside the original report.
+5. Validate the structured response and its evidence references. The model can
+   return a distinct hypothesis, a check, and a proposed edit. Verification
+   remains a separate result in the report.
+
+For example, a panic stack can lead the engine to `node.getValue`. The model
+can request an excerpt in the function body and search for where the affected
+slice is created. A matching search result is a place to inspect. Establishing
+which slice bound caused the panic requires evidence from the failing invocation.
+If retrieval is disabled or produces no usable excerpts, the harness can use
+the original evidence packet. If the model fails, the deterministic report is
+still available.
+
+### Query types and limits
+
+| Lookup | What Git reads | What it returns |
+| --- | --- | --- |
+| `read` | A committed blob at `revision:path` | Up to 31 numbered lines near a requested line in a repository-relative Go file, subject to byte limits |
+| `search` | Literal matches in Go files at the same revision | Up to 1,400 bytes of textual matches with file and line context |
+
+The planner has 30 seconds and a 10 KiB context and evidence budget. Each
+lookup has a two-second deadline. Before adding results, the harness compacts
+the original packet into a 14 KiB budget to leave room for retrieved code.
+The final evidence and context budget is 24 KiB. These are byte budgets for
+the variable input. Provider output limits are configured separately.
+
+The retrieval backend is literal Git search and line-based reads. There is no
+embedding index or semantic similarity ranking. This makes every excerpt
+traceable to a commit and keeps the lookup independent of uncommitted edits.
+It can miss renamed symbols, indirect callers, and operations outside the
+retrieved window. Use the engine's Go source and SSA analysis for resolved
+relationships when those are available.
+
+### What the harness validates
+
+| Check | Effect |
+| --- | --- |
+| Revision and lookup validation | Require a full Git commit ID and reject malformed lookup values. Reads are restricted to repository-relative Go paths. |
+| Evidence identity | Deduplicate identical lookup results and assign a derived evidence ID to each retained excerpt. |
+| Response contract | Reject unknown fields and citations outside the supplied packet. Require evidence references for a suggested fix. |
+| Verification status | Keep model output under the agent report. A valid citation is traceable, but a focused execution or other direct evidence is needed to verify the claim. |
+
+If planning fails or no lookup returns source, Caeser attempts analysis with
+the original report while time remains. If the final provider call or response
+validation fails, the report records model analysis as unavailable. The
+deterministic classification and verification fields stay intact.
+
+## How the investigation scheduler chooses a check
+
+The default CI path can stop after building the report from existing evidence.
+When adaptive investigation is enabled, the scheduler tracks the open objective,
+current hypotheses, and actions available for the evidence it has.
+
+| Step | Decision |
+| --- | --- |
+| Identify the gap | Record what would change the assessment, such as whether the same failure occurs on base. |
+| Rank available actions | Weigh diagnostic relevance, ability to distinguish hypotheses, evidence quality, and execution cost. |
+| Execute and assess | Record the action and its result. Reassess hypotheses against the new evidence. |
+| Decide whether to continue | Stop when the objective is met, execution is unavailable, or the iteration, activity, experiment, or time budget is exhausted. |
+
+The scheduler selects from actions implemented by Caeser. The optional model
+harness interprets evidence through its own interface. Source lookup requests
+do not dispatch sandbox commands. A suggested repair follows its separate
+verification flow.
+
 ## Runtime and security boundaries
 
 Caeser's orchestration and the Docker isolation boundary are documented

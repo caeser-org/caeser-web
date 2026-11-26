@@ -46,6 +46,28 @@ metadata; runtime operation probes digest the exact binary they execute.
 Original CI binary offsets are only resolvable with matching original build
 evidence. A newly compiled binary supplies evidence about the new execution.
 
+## How an investigation reaches the sandbox
+
+The diagnosis layer selects the test or operation to check. The executor
+receives a concrete request with a revision workspace, working directory,
+command, allowed environment, and output and time limits. Its result returns
+to the diagnosis layer for comparison with the original failure.
+
+| Stage | What to inspect in the report |
+| --- | --- |
+| Prepare | Which revision was checked out, which test was selected, and whether the executor could prepare the workspace. |
+| Build and run | Whether the build succeeded and the test actually executed. The focused Go path keeps the selected binary and its provenance. |
+| Match | Whether the new run reproduced the original failure signature. A failed build or absent test leaves this question open. |
+| Compare | Which revisions ran and which matched. An absent base result leaves PR attribution unresolved. |
+| Retain and clean up | Which evidence and artifacts survived the run and whether execution resources were removed. |
+
+For a focused base/head check, both revisions get their own workspaces. If
+the original signature matches on head and the corresponding base test
+passes, the comparison supports a regression. If it matches on both, the
+failure also occurs on base. Runtime instrumentation and patch verification
+record their own outcomes, so a passing patch check stays distinct from an
+explanation of the original failure.
+
 ## Local execution
 
 `--executor local` is the default. It applies the command policy, uses a timeout,
